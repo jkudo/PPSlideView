@@ -2,6 +2,7 @@ class SlidesList {
     constructor() {
         this.listContainer = document.getElementById('slidesList');
         this.slides = [];
+        console.log('SlidesList initialized');
         this.loadSlidesList();
 
         // 30秒ごとに一覧を更新
@@ -15,10 +16,14 @@ class SlidesList {
             // JSONファイルから一覧を読み込む
             const response = await fetch('pdf-list.json');
             if (!response.ok) {
-                throw new Error('Failed to load slides list');
+                throw new Error(`Failed to load slides list: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
+            if (!data || !Array.isArray(data.slides)) {
+                throw new Error('Invalid data format in pdf-list.json');
+            }
+
             this.slides = data.slides;
             console.log(`Found ${this.slides.length} slides:`, this.slides);
             this.renderList();
@@ -52,10 +57,10 @@ class SlidesList {
     }
 
     renderList() {
-        this.listContainer.innerHTML = '';
         console.log('Rendering slides list...');
+        this.listContainer.innerHTML = '';
 
-        if (this.slides.length === 0) {
+        if (!this.slides || this.slides.length === 0) {
             this.showNoSlidesMessage();
             return;
         }
@@ -72,7 +77,7 @@ class SlidesList {
 
             const title = document.createElement('h6');
             title.className = 'mb-1';
-            title.textContent = slide.title;
+            title.textContent = slide.title || this.formatTitle(slide.name);
             infoDiv.appendChild(title);
 
             if (slide.uploadedAt) {
@@ -148,5 +153,3 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing slides list...');
     window.slidesList = new SlidesList();
 });
-</replit_file>
-}
