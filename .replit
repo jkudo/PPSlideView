@@ -25,25 +25,6 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python server.py"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Static Server"
-
-[[workflows.workflow]]
-name = "Static Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -m http.server 3000"
-waitForPort = 3000
-
 [[ports]]
 localPort = 3000
 externalPort = 3000
