@@ -27,7 +27,7 @@ class SlidesList {
             {
                 name: 'demo1',
                 title: 'デモスライド1',
-                pdfUrl: 'slides/demo1.pdf',
+                pdfUrl: './slides/demo1.pdf',
                 uploadedAt: '2024-12-21T10:00:00Z'
             }
             // 新しいスライドはここに追加されます
@@ -102,6 +102,7 @@ class SlidesList {
     }
 
     selectSlide(slide) {
+        console.log('Loading slide:', slide);
         window.pdfViewer.loadDocument(slide.pdfUrl);
     }
 
@@ -137,5 +138,5 @@ class SlidesList {
 
 // ページ読み込み時にスライド一覧を初期化
 document.addEventListener('DOMContentLoaded', () => {
-    new SlidesList();
+    window.slidesList = new SlidesList();
 });
