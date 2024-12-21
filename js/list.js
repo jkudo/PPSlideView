@@ -8,23 +8,36 @@ class SlidesList {
     async loadSlidesList() {
         try {
             console.log('Loading slides list...');
-            // サーバー上のPDFファイルを直接探索
             const slides = [];
-            
-            // テスト用のデモスライドを追加
-            slides.push({
-                name: 'demo1',
-                title: 'デモスライド1',
-                pdfUrl: './pdfs/demo1.pdf',
-                uploadedAt: new Date().toISOString()
-            });
+
+            // PDFsディレクトリ内のファイルを取得
+            const response = await fetch('pdfs/');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const links = doc.querySelectorAll('a');
+
+            // PDFファイルのみを抽出
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                if (href && href.toLowerCase().endsWith('.pdf')) {
+                    const name = href.replace('.pdf', '');
+                    const title = this.formatTitle(name);
+                    slides.push({
+                        name: name,
+                        title: title,
+                        pdfUrl: `pdfs/${href}`,
+                        uploadedAt: new Date().toISOString()
+                    });
+                }
+            }
 
             // スライドを表示
             this.slides = slides;
             console.log(`Found ${slides.length} slides:`, slides);
             this.renderList();
 
-            // PDFファイルの存在確認（表示には影響しない）
+            // PDFファイルの存在確認
             for (const slide of slides) {
                 try {
                     const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
@@ -44,7 +57,15 @@ class SlidesList {
         }
     }
 
-    // 残りのメソッドは変更なし
+    formatTitle(filename) {
+        // ファイル名からタイトルを生成
+        return filename
+            .replace(/[-_]/g, ' ')  // ハイフンとアンダースコアをスペースに
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+
     formatDate(dateString) {
         const date = new Date(dateString);
         const options = {
