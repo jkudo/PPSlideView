@@ -11,6 +11,35 @@ html, body {
     padding: 1rem;
 }
 
+.search-container {
+    position: sticky;
+    top: 1rem;
+    z-index: 1000;
+    background-color: var(--bs-dark);
+    padding: 0.5rem 0;
+}
+
+.search-container .input-group {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+}
+
+.search-container .form-control {
+    border: none;
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.search-container .form-control:focus {
+    box-shadow: none;
+    background-color: var(--bs-dark);
+}
+
+.search-container .btn {
+    border: none;
+    color: var(--bs-light);
+}
+
 .viewer-container {
     height: 100vh;
     display: flex;
