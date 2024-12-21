@@ -8,7 +8,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # PDFファイルのpushに必要な権限を追加
+  contents: write  # PDFファイルのリポジトリへのpush権限
+  pages: write    # GitHub Pagesへのデプロイ権限
+  id-token: write # GitHub Pagesのデプロイに必要な認証
 
 jobs:
   convert:

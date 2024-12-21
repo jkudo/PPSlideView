@@ -28,4 +28,6 @@ GitHub Pages上でPowerPointスライドをPDFとして表示するビューワ�
    - 「Read and write permissions」を選択
    - 「Allow GitHub Actions to create and approve pull requests」にチェックを入れる
 4. `slides`ディレクトリにPowerPointファイルをアップロードします
-5. 自動的にPDFに変換され、ウェブサイト上で表示できるようになります
+   - サポートされる形式: .ppt, .pptx
+   - アップロード後、自動的にPDFに変換されます
+5. 変換されたPDFファイルは自動的にリポジトリにコミットされ、ウェブサイト上で表示できるようになります
