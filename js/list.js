@@ -8,25 +8,6 @@ class SlidesList {
     async loadSlidesList() {
         try {
             console.log('Loading slides list...');
-            const slides = await this.fetchSlidesList();
-            this.slides = slides;
-
-            if (slides.length > 0) {
-                console.log(`Found ${slides.length} slides`);
-                this.renderList();
-            } else {
-                console.log('No slides found');
-                this.showNoSlidesMessage();
-            }
-        } catch (error) {
-            console.error('Error loading slides list:', error);
-            this.showErrorMessage(error.message);
-        }
-    }
-
-    async fetchSlidesList() {
-        try {
-            // テスト用のスライドデータ
             const slides = [
                 {
                     name: 'demo1',
@@ -36,26 +17,26 @@ class SlidesList {
                 }
             ];
 
-            // PDFファイルの存在確認
-            const validSlides = await Promise.all(slides.map(async (slide) => {
+            // スライドを表示
+            this.slides = slides;
+            console.log(`Found ${slides.length} slides`);
+            this.renderList();
+
+            // PDFファイルの存在確認（表示には影響しない）
+            slides.forEach(async (slide) => {
                 try {
                     const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        console.log(`PDF file found: ${slide.pdfUrl}`);
-                        return slide;
+                    if (!response.ok) {
+                        console.warn(`PDF file not found: ${slide.pdfUrl}`);
                     }
-                    console.warn(`PDF file not found: ${slide.pdfUrl}`);
-                    return null;
                 } catch (error) {
                     console.error(`Error checking PDF file ${slide.pdfUrl}:`, error);
-                    return null;
                 }
-            }));
+            });
 
-            return validSlides.filter(slide => slide !== null);
         } catch (error) {
-            console.error('Error fetching slides list:', error);
-            throw new Error('スライドリストの取得に失敗しました');
+            console.error('Error loading slides list:', error);
+            this.showErrorMessage(error.message);
         }
     }
 
@@ -75,6 +56,11 @@ class SlidesList {
     renderList() {
         this.listContainer.innerHTML = '';
         console.log('Rendering slides list...');
+
+        if (this.slides.length === 0) {
+            this.showNoSlidesMessage();
+            return;
+        }
 
         this.slides.forEach(slide => {
             const item = document.createElement('button');
