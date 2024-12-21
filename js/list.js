@@ -12,15 +12,9 @@ class SlidesList {
 
             // スライド一覧を更新
             this.slides = slides;
-
-            // 各スライドの存在確認
-            const availableSlides = await this.checkAvailableSlides(slides);
-
-            // 利用可能なスライドで更新
-            this.slides = availableSlides;
             this.renderList();
 
-            if (availableSlides.length === 0) {
+            if (slides.length === 0) {
                 this.showNoSlidesMessage();
             }
         } catch (error) {
@@ -35,27 +29,11 @@ class SlidesList {
             {
                 name: 'demo1',
                 title: 'デモスライド1',
-                pdfUrl: 'slides/demo1.pdf'
+                pdfUrl: 'slides/demo1.pdf',
+                uploadedAt: '2024-12-21T10:00:00Z'  // アップロード日時を追加
             }
             // 新しいスライドはここに追加
         ];
-    }
-
-    async checkAvailableSlides(slides) {
-        const availableSlides = [];
-        for (const slide of slides) {
-            try {
-                const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
-                if (response.ok) {
-                    availableSlides.push(slide);
-                } else {
-                    console.warn(`スライド ${slide.title} (${slide.pdfUrl}) が見つかりません`);
-                }
-            } catch (error) {
-                console.error(`スライド ${slide.title} の確認中にエラーが発生しました:`, error);
-            }
-        }
-        return availableSlides;
     }
 
     showNoSlidesMessage() {
@@ -81,22 +59,53 @@ class SlidesList {
             </div>`;
     }
 
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('ja-JP', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+
     renderList() {
         this.listContainer.innerHTML = '';
 
         this.slides.forEach(slide => {
             const item = document.createElement('button');
-            item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            item.className = 'list-group-item list-group-item-action';
 
-            // スライドタイトルの表示
-            const titleSpan = document.createElement('span');
-            titleSpan.textContent = slide.title || slide.name;
-            item.appendChild(titleSpan);
+            // スライド情報のコンテナ
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'd-flex justify-content-between align-items-center w-100';
 
-            // PDFアイコンの追加
+            // 左側：タイトルとアップロード日時
+            const infoDiv = document.createElement('div');
+
+            // タイトル
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'fw-bold';
+            titleDiv.textContent = slide.title || slide.name;
+            infoDiv.appendChild(titleDiv);
+
+            // アップロード日時
+            if (slide.uploadedAt) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'text-muted small';
+                dateDiv.textContent = `アップロード: ${this.formatDate(slide.uploadedAt)}`;
+                infoDiv.appendChild(dateDiv);
+            }
+
+            contentDiv.appendChild(infoDiv);
+
+            // 右側：PDFアイコン
             const icon = document.createElement('i');
             icon.className = 'fas fa-file-pdf text-muted';
-            item.appendChild(icon);
+            contentDiv.appendChild(icon);
+
+            item.appendChild(contentDiv);
 
             item.addEventListener('click', () => {
                 this.selectSlide(slide);
