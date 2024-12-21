@@ -7,18 +7,21 @@ on:
       - 'slides/*.pptx'
   workflow_dispatch:
 
+permissions:
+  contents: write  # PDFファイルのpushに必要な権限を追加
+
 jobs:
   convert:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up LibreOffice
       run: |
         sudo apt-get update
         sudo apt-get install -y libreoffice
-    
+
     - name: Convert PPT to PDF
       run: |
         mkdir -p pdf_output
@@ -29,11 +32,11 @@ jobs:
             libreoffice --headless --convert-to pdf --outdir pdf_output "$file"
           fi
         done
-    
+
     - name: Move PDFs to slides directory
       run: |
         mv pdf_output/*.pdf slides/
-        
+
     - name: Commit PDF files
       run: |
         git config --local user.email "action@github.com"
@@ -41,4 +44,3 @@ jobs:
         git add slides/*.pdf
         git commit -m "Convert PowerPoint to PDF" || echo "No changes to commit"
         git push
-
