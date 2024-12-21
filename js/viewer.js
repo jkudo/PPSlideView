@@ -15,6 +15,7 @@ class PDFViewer {
         this.totalPagesSpan = document.getElementById('totalPages');
 
         this.initializeControls();
+        console.log('PDF viewer initialized');
     }
 
     initializeControls() {
@@ -29,7 +30,6 @@ class PDFViewer {
             }
         });
 
-        // ウィンドウサイズ変更時の再レンダリング
         window.addEventListener('resize', () => {
             if (this.pdfDoc) {
                 this.renderCurrentPage();
@@ -40,9 +40,11 @@ class PDFViewer {
     async loadDocument(url) {
         try {
             console.log('Loading PDF:', url);
-            // PDF.jsの設定を追加
+            const absoluteUrl = new URL(url, window.location.href).href;
+            console.log('Absolute URL:', absoluteUrl);
+
             const loadingTask = pdfjsLib.getDocument({
-                url: url,
+                url: absoluteUrl,
                 cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
                 cMapPacked: true,
                 standardFontDataUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/standard_fonts/',
@@ -52,7 +54,7 @@ class PDFViewer {
             console.log('PDF loaded successfully');
             this.totalPagesSpan.textContent = this.pdfDoc.numPages;
             this.currentPage = 1;
-            this.renderCurrentPage();
+            await this.renderCurrentPage();
         } catch (error) {
             console.error('Error loading PDF:', error);
             this.showError(`スライド ${url} の読み込み中にエラーが発生しました: ${error.message}`);
@@ -60,6 +62,7 @@ class PDFViewer {
     }
 
     showError(message) {
+        console.error('Error:', message);
         const container = document.getElementById('viewerContainer');
         container.innerHTML = `
             <div class="alert alert-danger m-3">
@@ -72,13 +75,16 @@ class PDFViewer {
     }
 
     async renderCurrentPage() {
-        if (!this.pdfDoc) return;
+        if (!this.pdfDoc) {
+            console.warn('No PDF document loaded');
+            return;
+        }
 
         try {
+            console.log('Rendering page:', this.currentPage);
             const page = await this.pdfDoc.getPage(this.currentPage);
             const viewport = page.getViewport({ scale: 1.5 });
 
-            // キャンバスのサイズをビューポートに合わせる
             const container = document.getElementById('viewerContainer');
             const scale = Math.min(
                 container.clientWidth / viewport.width,
@@ -93,13 +99,11 @@ class PDFViewer {
             const renderContext = {
                 canvasContext: this.ctx,
                 viewport: scaledViewport,
-                // レンダリングの品質を向上
                 enableWebGL: true,
                 renderInteractiveForms: true,
                 useSystemFonts: true
             };
 
-            console.log('Rendering page:', this.currentPage);
             const renderTask = page.render(renderContext);
             await renderTask.promise;
             console.log('Page rendered successfully');
@@ -114,6 +118,7 @@ class PDFViewer {
 
     prevPage() {
         if (this.currentPage > 1) {
+            console.log('Moving to previous page');
             this.currentPage--;
             this.renderCurrentPage();
         }
@@ -121,6 +126,7 @@ class PDFViewer {
 
     nextPage() {
         if (this.currentPage < this.pdfDoc.numPages) {
+            console.log('Moving to next page');
             this.currentPage++;
             this.renderCurrentPage();
         }
@@ -133,6 +139,7 @@ class PDFViewer {
 }
 
 // Initialize viewer
+console.log('Creating PDF viewer instance');
 const viewer = new PDFViewer();
 
 // Export for use in other modules

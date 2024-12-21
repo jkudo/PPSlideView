@@ -7,31 +7,56 @@ class SlidesList {
 
     async loadSlidesList() {
         try {
-            // GitHub Pages用に静的に定義されたスライドリスト
+            console.log('Loading slides list...');
             const slides = await this.fetchSlidesList();
             this.slides = slides;
-            this.renderList();
 
-            if (slides.length === 0) {
+            if (slides.length > 0) {
+                console.log(`Found ${slides.length} slides`);
+                this.renderList();
+            } else {
+                console.log('No slides found');
                 this.showNoSlidesMessage();
             }
         } catch (error) {
-            console.error('スライド一覧の読み込み中にエラーが発生しました:', error);
-            this.showErrorMessage();
+            console.error('Error loading slides list:', error);
+            this.showErrorMessage(error.message);
         }
     }
 
     async fetchSlidesList() {
-        // GitHub Pages用の静的スライドリスト
-        return [
-            {
-                name: 'demo1',
-                title: 'デモスライド1',
-                pdfUrl: './pdfs/demo1.pdf',
-                uploadedAt: '2024-12-21T10:00:00Z'
-            }
-            // 新しいスライドはここに追加されます
-        ];
+        try {
+            // テスト用のスライドデータ
+            const slides = [
+                {
+                    name: 'demo1',
+                    title: 'テストスライド1',
+                    pdfUrl: '/pdfs/demo1.pdf',
+                    uploadedAt: new Date().toISOString()
+                }
+            ];
+
+            // PDFファイルの存在確認
+            const validSlides = await Promise.all(slides.map(async (slide) => {
+                try {
+                    const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
+                    if (response.ok) {
+                        console.log(`PDF file found: ${slide.pdfUrl}`);
+                        return slide;
+                    }
+                    console.warn(`PDF file not found: ${slide.pdfUrl}`);
+                    return null;
+                } catch (error) {
+                    console.error(`Error checking PDF file ${slide.pdfUrl}:`, error);
+                    return null;
+                }
+            }));
+
+            return validSlides.filter(slide => slide !== null);
+        } catch (error) {
+            console.error('Error fetching slides list:', error);
+            throw new Error('スライドリストの取得に失敗しました');
+        }
     }
 
     formatDate(dateString) {
@@ -49,26 +74,23 @@ class SlidesList {
 
     renderList() {
         this.listContainer.innerHTML = '';
+        console.log('Rendering slides list...');
 
         this.slides.forEach(slide => {
             const item = document.createElement('button');
             item.className = 'list-group-item list-group-item-action';
 
-            // スライド情報のレイアウト
             const contentDiv = document.createElement('div');
             contentDiv.className = 'd-flex w-100 justify-content-between align-items-start';
 
-            // 左側：タイトルと日時
             const infoDiv = document.createElement('div');
             infoDiv.className = 'me-3';
 
-            // タイトル
             const title = document.createElement('h6');
             title.className = 'mb-1';
             title.textContent = slide.title || slide.name;
             infoDiv.appendChild(title);
 
-            // アップロード日時
             if (slide.uploadedAt) {
                 const dateText = document.createElement('small');
                 dateText.className = 'text-muted';
@@ -78,7 +100,6 @@ class SlidesList {
 
             contentDiv.appendChild(infoDiv);
 
-            // 右側：PDFアイコン
             const iconDiv = document.createElement('div');
             iconDiv.className = 'ms-2';
             const icon = document.createElement('i');
@@ -88,7 +109,6 @@ class SlidesList {
             contentDiv.appendChild(iconDiv);
             item.appendChild(contentDiv);
 
-            // クリックイベント
             item.addEventListener('click', () => {
                 this.selectSlide(slide);
                 document.querySelectorAll('.list-group-item').forEach(el => {
@@ -99,6 +119,7 @@ class SlidesList {
 
             this.listContainer.appendChild(item);
         });
+        console.log('Slides list rendered successfully');
     }
 
     selectSlide(slide) {
@@ -123,7 +144,8 @@ class SlidesList {
             </div>`;
     }
 
-    showErrorMessage() {
+    showErrorMessage(errorDetail = '') {
+        const errorMessage = errorDetail ? `<p class="mb-2">エラー詳細: ${errorDetail}</p>` : '';
         this.listContainer.innerHTML = `
             <div class="alert alert-danger">
                 <h4 class="alert-heading mb-3">
@@ -131,6 +153,7 @@ class SlidesList {
                     エラーが発生しました
                 </h4>
                 <p class="mb-2">スライド一覧の読み込みに失敗しました。</p>
+                ${errorMessage}
                 <p>ページを更新してもう一度お試しください。</p>
             </div>`;
     }
@@ -138,5 +161,6 @@ class SlidesList {
 
 // ページ読み込み時にスライド一覧を初期化
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing slides list...');
     window.slidesList = new SlidesList();
 });
