@@ -7,19 +7,28 @@ class PDFViewer {
         this.currentPage = 1;
         this.canvas = document.getElementById('pdfViewer');
         this.ctx = this.canvas.getContext('2d');
-        
+
         // Navigation controls
         this.prevButton = document.getElementById('prevPage');
         this.nextButton = document.getElementById('nextPage');
         this.currentPageSpan = document.getElementById('currentPage');
         this.totalPagesSpan = document.getElementById('totalPages');
-        
+
         this.initializeControls();
     }
 
     initializeControls() {
         this.prevButton.addEventListener('click', () => this.prevPage());
         this.nextButton.addEventListener('click', () => this.nextPage());
+
+        // キーボードショートカットの追加
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                this.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                this.nextPage();
+            }
+        });
     }
 
     async loadDocument(url) {
@@ -41,12 +50,21 @@ class PDFViewer {
             const page = await this.pdfDoc.getPage(this.currentPage);
             const viewport = page.getViewport({ scale: 1.5 });
 
-            this.canvas.height = viewport.height;
-            this.canvas.width = viewport.width;
+            // キャンバスのサイズをビューポートに合わせる
+            const container = document.getElementById('viewerContainer');
+            const scale = Math.min(
+                container.clientWidth / viewport.width,
+                container.clientHeight / viewport.height
+            ) * 0.9;
+
+            const scaledViewport = page.getViewport({ scale });
+
+            this.canvas.height = scaledViewport.height;
+            this.canvas.width = scaledViewport.width;
 
             const renderContext = {
                 canvasContext: this.ctx,
-                viewport: viewport
+                viewport: scaledViewport
             };
 
             await page.render(renderContext).promise;
@@ -78,6 +96,13 @@ class PDFViewer {
 }
 
 const viewer = new PDFViewer();
+
+// ウィンドウサイズが変更されたときにページを再レンダリング
+window.addEventListener('resize', () => {
+    if (viewer.pdfDoc) {
+        viewer.renderCurrentPage();
+    }
+});
 
 // Export for use in other modules
 window.pdfViewer = viewer;

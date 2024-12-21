@@ -7,43 +7,50 @@ class SlidesList {
 
     async loadSlidesList() {
         try {
-            // Load slides directly from the repository path
-            const repoPath = window.location.pathname.split('/')[1]; // Get repository name from URL
-            const slidesPath = `/${repoPath}/slides`; // Path to slides directory
+            // リポジトリ名をURLから取得
+            const pathSegments = window.location.pathname.split('/');
+            const repoPath = pathSegments.length > 1 ? pathSegments[1] : '';
+            const slidesPath = repoPath ? `/${repoPath}/slides` : '/slides';
 
-            // List all PDF files in the slides directory
+            // スライドディレクトリのファイル一覧を取得
             const files = await this.listFilesInDirectory(slidesPath);
             this.slides = files.filter(file => file.name.endsWith('.pdf'));
             this.renderList();
         } catch (error) {
             console.error('Error loading slides list:', error);
-            this.listContainer.innerHTML = '<div class="alert alert-danger">Failed to load slides list</div>';
+            this.listContainer.innerHTML = '<div class="alert alert-danger">スライド一覧の読み込みに失敗しました</div>';
         }
     }
 
     async listFilesInDirectory(path) {
-        // In GitHub Pages, we'll directly access the files in the slides directory
-        // This is a simplified version that works with the static file structure
-        const response = await fetch(`${path}/`);
-        if (!response.ok) throw new Error('Failed to fetch slides list');
+        try {
+            const response = await fetch(`${path}/`);
+            if (!response.ok) throw new Error('Failed to fetch slides list');
 
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
 
-        // Parse the directory listing
-        const files = Array.from(doc.querySelectorAll('a'))
-            .filter(a => a.href.endsWith('.pdf'))
-            .map(a => ({
-                name: a.textContent,
-                download_url: a.href
-            }));
-
-        return files;
+            // ディレクトリ一覧からPDFファイルを抽出
+            return Array.from(doc.querySelectorAll('a'))
+                .filter(a => a.href.endsWith('.pdf'))
+                .map(a => ({
+                    name: decodeURIComponent(a.href.split('/').pop()),
+                    download_url: a.href
+                }));
+        } catch (error) {
+            console.error('Error listing files:', error);
+            return [];
+        }
     }
 
     renderList() {
         this.listContainer.innerHTML = '';
+        if (this.slides.length === 0) {
+            this.listContainer.innerHTML = '<div class="alert alert-info">スライドがありません</div>';
+            return;
+        }
+
         this.slides.forEach(slide => {
             const item = document.createElement('button');
             item.className = 'list-group-item list-group-item-action';
@@ -51,11 +58,10 @@ class SlidesList {
 
             item.addEventListener('click', () => {
                 this.selectSlide(slide);
-                // Remove active class from all items
+                // アクティブなアイテムの更新
                 document.querySelectorAll('.list-group-item').forEach(el => {
                     el.classList.remove('active');
                 });
-                // Add active class to clicked item
                 item.classList.add('active');
             });
 
@@ -64,12 +70,12 @@ class SlidesList {
     }
 
     selectSlide(slide) {
-        // Load the selected PDF into the viewer
+        // 選択されたPDFをビューワーに読み込む
         window.pdfViewer.loadDocument(slide.download_url);
     }
 }
 
-// Initialize the slides list when the page loads
+// ページ読み込み時にスライド一覧を初期化
 document.addEventListener('DOMContentLoaded', () => {
     new SlidesList();
 });
