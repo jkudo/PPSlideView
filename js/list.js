@@ -3,53 +3,25 @@ class SlidesList {
         this.listContainer = document.getElementById('slidesList');
         this.slides = [];
         this.loadSlidesList();
+
+        // 30秒ごとに一覧を更新
+        setInterval(() => this.loadSlidesList(), 30000);
     }
 
     async loadSlidesList() {
         try {
             console.log('Loading slides list...');
-            const slides = [];
 
-            // PDFsディレクトリ内のファイルを取得
-            const response = await fetch('pdfs/');
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const links = doc.querySelectorAll('a');
-
-            // PDFファイルのみを抽出
-            for (const link of links) {
-                const href = link.getAttribute('href');
-                if (href && href.toLowerCase().endsWith('.pdf')) {
-                    const name = href.replace('.pdf', '');
-                    const title = this.formatTitle(name);
-                    slides.push({
-                        name: name,
-                        title: title,
-                        pdfUrl: `pdfs/${href}`,
-                        uploadedAt: new Date().toISOString()
-                    });
-                }
+            // JSONファイルから一覧を読み込む
+            const response = await fetch('pdf-list.json');
+            if (!response.ok) {
+                throw new Error('Failed to load slides list');
             }
 
-            // スライドを表示
-            this.slides = slides;
-            console.log(`Found ${slides.length} slides:`, slides);
+            const data = await response.json();
+            this.slides = data.slides;
+            console.log(`Found ${this.slides.length} slides:`, this.slides);
             this.renderList();
-
-            // PDFファイルの存在確認
-            for (const slide of slides) {
-                try {
-                    const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
-                    if (!response.ok) {
-                        console.warn(`PDF file not found: ${slide.pdfUrl}`);
-                    } else {
-                        console.log(`PDF file found: ${slide.pdfUrl}`);
-                    }
-                } catch (error) {
-                    console.error(`Error checking PDF file ${slide.pdfUrl}:`, error);
-                }
-            }
 
         } catch (error) {
             console.error('Error loading slides list:', error);
@@ -100,7 +72,7 @@ class SlidesList {
 
             const title = document.createElement('h6');
             title.className = 'mb-1';
-            title.textContent = slide.title || slide.name;
+            title.textContent = slide.title;
             infoDiv.appendChild(title);
 
             if (slide.uploadedAt) {
@@ -176,3 +148,5 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing slides list...');
     window.slidesList = new SlidesList();
 });
+</replit_file>
+}

@@ -1,0 +1,28 @@
+{
+  "slides": [
+    {
+      "name": "デモ３",
+      "title": "デモ３",
+      "pdfUrl": "pdfs/デモ３.pdf",
+      "uploadedAt": "2024-12-21T18:30:03.101578"
+    },
+    {
+      "name": "demo1",
+      "title": "Demo1",
+      "pdfUrl": "pdfs/demo1.pdf",
+      "uploadedAt": "2024-12-21T18:30:03.100578"
+    },
+    {
+      "name": "demo2",
+      "title": "Demo2",
+      "pdfUrl": "pdfs/demo2.pdf",
+      "uploadedAt": "2024-12-21T18:30:03.100578"
+    },
+    {
+      "name": "デモ5",
+      "title": "デモ5",
+      "pdfUrl": "pdfs/デモ5.pdf",
+      "uploadedAt": "2024-12-21T18:30:03.100578"
+    }
+  ]
+}

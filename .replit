@@ -29,6 +29,10 @@ args = "python server.py"
 task = "workflow.run"
 args = "Static Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "PDF List Generator"
+
 [[workflows.workflow]]
 name = "Static Server"
 author = "agent"
@@ -43,6 +47,20 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python3 -m http.server 5000"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "PDF List Generator"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python server.py"
 
 [[ports]]
 localPort = 3000
