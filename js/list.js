@@ -27,7 +27,7 @@ class SlidesList {
             {
                 name: 'demo1',
                 title: 'デモスライド1',
-                pdfUrl: './slides/demo1.pdf',
+                pdfUrl: './pdfs/demo1.pdf',
                 uploadedAt: '2024-12-21T10:00:00Z'
             }
             // 新しいスライドはここに追加されます
@@ -118,7 +118,7 @@ class SlidesList {
                 <p class="mb-2">スライドを追加するには：</p>
                 <ol class="mt-2">
                     <li class="mb-2"><code>slides</code>ディレクトリにPowerPointファイル（.pptx）をアップロードしてください。</li>
-                    <li>GitHub Actionsにより自動的にPDFに変換され、ここに表示されます。</li>
+                    <li>GitHub Actionsにより自動的にPDFに変換され、<code>pdfs</code>ディレクトリに保存されます。</li>
                 </ol>
             </div>`;
     }

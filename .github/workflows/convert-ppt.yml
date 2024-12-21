@@ -24,25 +24,30 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libreoffice
 
+    - name: Create output directory
+      run: mkdir -p pdfs
+
     - name: Convert PPT to PDF
       run: |
-        mkdir -p pdf_output
         for file in slides/*.ppt*; do
           if [ -f "$file" ]; then
             filename=$(basename -- "$file")
             name="${filename%.*}"
-            libreoffice --headless --convert-to pdf --outdir pdf_output "$file"
+            echo "Converting $filename to PDF..."
+            libreoffice --headless --convert-to pdf --outdir pdfs "$file"
+            if [ $? -eq 0 ]; then
+              echo "Successfully converted $filename"
+            else
+              echo "Error converting $filename"
+              exit 1
+            fi
           fi
         done
-
-    - name: Move PDFs to slides directory
-      run: |
-        mv pdf_output/*.pdf slides/
 
     - name: Commit PDF files
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add slides/*.pdf
+        git add pdfs/*.pdf
         git commit -m "Convert PowerPoint to PDF" || echo "No changes to commit"
         git push
