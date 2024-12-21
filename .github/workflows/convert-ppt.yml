@@ -1,0 +1,44 @@
+name: Convert PowerPoint to PDF
+
+on:
+  push:
+    paths:
+      - 'slides/*.ppt'
+      - 'slides/*.pptx'
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up LibreOffice
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libreoffice
+    
+    - name: Convert PPT to PDF
+      run: |
+        mkdir -p pdf_output
+        for file in slides/*.ppt*; do
+          if [ -f "$file" ]; then
+            filename=$(basename -- "$file")
+            name="${filename%.*}"
+            libreoffice --headless --convert-to pdf --outdir pdf_output "$file"
+          fi
+        done
+    
+    - name: Move PDFs to slides directory
+      run: |
+        mv pdf_output/*.pdf slides/
+        
+    - name: Commit PDF files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add slides/*.pdf
+        git commit -m "Convert PowerPoint to PDF" || echo "No changes to commit"
+        git push
+

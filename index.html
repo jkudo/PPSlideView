@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Viewer</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://kit.fontawesome.com/b0b212d4ff.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Slide List Sidebar -->
+            <div class="col-md-3 sidebar">
+                <h3 class="mt-3 mb-4">スライド一覧</h3>
+                <div id="slidesList" class="list-group">
+                    <!-- Slides will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- PDF Viewer -->
+            <div class="col-md-9 viewer-container">
+                <div id="viewerContainer">
+                    <canvas id="pdfViewer"></canvas>
+                </div>
+                <div class="navigation-controls">
+                    <button id="prevPage" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i> 前のページ
+                    </button>
+                    <span id="pageInfo" class="mx-3">ページ <span id="currentPage">0</span> / <span id="totalPages">0</span></span>
+                    <button id="nextPage" class="btn btn-secondary">
+                        次のページ <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/viewer.js"></script>
+    <script src="js/list.js"></script>
+</body>
+</html>
