@@ -40,14 +40,22 @@ class PDFViewer {
     async loadDocument(url) {
         try {
             console.log('Loading PDF:', url);
-            const loadingTask = pdfjsLib.getDocument(url);
+            // PDF.jsの設定を追加
+            const loadingTask = pdfjsLib.getDocument({
+                url: url,
+                cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
+                cMapPacked: true,
+                standardFontDataUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/standard_fonts/',
+            });
+
             this.pdfDoc = await loadingTask.promise;
+            console.log('PDF loaded successfully');
             this.totalPagesSpan.textContent = this.pdfDoc.numPages;
             this.currentPage = 1;
             this.renderCurrentPage();
         } catch (error) {
             console.error('Error loading PDF:', error);
-            this.showError(`スライド ${url} が見つかりません`);
+            this.showError(`スライド ${url} の読み込み中にエラーが発生しました: ${error.message}`);
         }
     }
 
@@ -84,15 +92,23 @@ class PDFViewer {
 
             const renderContext = {
                 canvasContext: this.ctx,
-                viewport: scaledViewport
+                viewport: scaledViewport,
+                // レンダリングの品質を向上
+                enableWebGL: true,
+                renderInteractiveForms: true,
+                useSystemFonts: true
             };
 
-            await page.render(renderContext).promise;
+            console.log('Rendering page:', this.currentPage);
+            const renderTask = page.render(renderContext);
+            await renderTask.promise;
+            console.log('Page rendered successfully');
+
             this.currentPageSpan.textContent = this.currentPage;
             this.updateNavigationButtons();
         } catch (error) {
             console.error('Error rendering page:', error);
-            this.showError('ページの表示中にエラーが発生しました');
+            this.showError(`ページの表示中にエラーが発生しました: ${error.message}`);
         }
     }
 
