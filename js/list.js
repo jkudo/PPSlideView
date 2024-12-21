@@ -7,40 +7,31 @@ class SlidesList {
 
     async loadSlidesList() {
         try {
-            // リポジトリ名をURLから取得
-            const pathSegments = window.location.pathname.split('/');
-            const repoPath = pathSegments.length > 1 ? pathSegments[1] : '';
-            const slidesPath = repoPath ? `/${repoPath}/slides` : '/slides';
-
-            // スライドディレクトリのファイル一覧を取得
-            const files = await this.listFilesInDirectory(slidesPath);
-            this.slides = files.filter(file => file.name.endsWith('.pdf'));
-            this.renderList();
-        } catch (error) {
-            console.error('Error loading slides list:', error);
-            this.listContainer.innerHTML = '<div class="alert alert-danger">スライド一覧の読み込みに失敗しました</div>';
-        }
-    }
-
-    async listFilesInDirectory(path) {
-        try {
-            const response = await fetch(`${path}/`);
-            if (!response.ok) throw new Error('Failed to fetch slides list');
+            // slidesディレクトリ内のファイル一覧を取得
+            const response = await fetch('slides/');
+            if (!response.ok) {
+                throw new Error('Failed to fetch slides directory');
+            }
 
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // ディレクトリ一覧からPDFファイルを抽出
-            return Array.from(doc.querySelectorAll('a'))
-                .filter(a => a.href.endsWith('.pdf'))
-                .map(a => ({
-                    name: decodeURIComponent(a.href.split('/').pop()),
-                    download_url: a.href
-                }));
+            // PDFファイルのみをフィルタリング
+            this.slides = Array.from(doc.querySelectorAll('a'))
+                .filter(a => a.href.toLowerCase().endsWith('.pdf'))
+                .map(a => {
+                    const filename = decodeURIComponent(a.href.split('/').pop());
+                    return {
+                        name: filename,
+                        download_url: `slides/${filename}`
+                    };
+                });
+
+            this.renderList();
         } catch (error) {
-            console.error('Error listing files:', error);
-            return [];
+            console.error('Error loading slides list:', error);
+            this.listContainer.innerHTML = '<div class="alert alert-danger">スライド一覧の読み込みに失敗しました</div>';
         }
     }
 
