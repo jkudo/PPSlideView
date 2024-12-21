@@ -3,8 +3,8 @@ name: Convert PowerPoint to PDF
 on:
   push:
     paths:
-      - 'slides/*.ppt'
-      - 'slides/*.pptx'
+      - 'slides/**/*.ppt'
+      - 'slides/**/*.pptx'
   workflow_dispatch:
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
             name="${filename%.*}"
             echo "Converting $filename to PDF..."
             # フォント埋め込みオプションを追加してPDF変換
-            libreoffice --headless --convert-to "pdf:writer_pdf_Export:EmbedFonts=1" --outdir pdfs "$file"
+            soffice --headless --convert-to "pdf:writer_pdf_Export:EmbedFonts=1" --outdir pdfs "$file"
             if [ $? -eq 0 ]; then
               echo "Successfully converted $filename"
             else
@@ -44,6 +44,9 @@ jobs:
             fi
           fi
         done
+
+    - name: List converted files
+      run: ls -la pdfs/
 
     - name: Commit PDF files
       run: |

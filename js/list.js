@@ -8,31 +8,35 @@ class SlidesList {
     async loadSlidesList() {
         try {
             console.log('Loading slides list...');
-            const slides = [
-                {
-                    name: 'demo1',
-                    title: 'テストスライド1',
-                    pdfUrl: '/pdfs/demo1.pdf',
-                    uploadedAt: new Date().toISOString()
-                }
-            ];
+            // サーバー上のPDFファイルを直接探索
+            const slides = [];
+            
+            // テスト用のデモスライドを追加
+            slides.push({
+                name: 'demo1',
+                title: 'デモスライド1',
+                pdfUrl: './pdfs/demo1.pdf',
+                uploadedAt: new Date().toISOString()
+            });
 
             // スライドを表示
             this.slides = slides;
-            console.log(`Found ${slides.length} slides`);
+            console.log(`Found ${slides.length} slides:`, slides);
             this.renderList();
 
             // PDFファイルの存在確認（表示には影響しない）
-            slides.forEach(async (slide) => {
+            for (const slide of slides) {
                 try {
                     const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
                     if (!response.ok) {
                         console.warn(`PDF file not found: ${slide.pdfUrl}`);
+                    } else {
+                        console.log(`PDF file found: ${slide.pdfUrl}`);
                     }
                 } catch (error) {
                     console.error(`Error checking PDF file ${slide.pdfUrl}:`, error);
                 }
-            });
+            }
 
         } catch (error) {
             console.error('Error loading slides list:', error);
@@ -40,6 +44,7 @@ class SlidesList {
         }
     }
 
+    // 残りのメソッドは変更なし
     formatDate(dateString) {
         const date = new Date(dateString);
         const options = {

@@ -113,8 +113,7 @@ class PDFViewer {
                 enableFontFaces: true
             };
 
-            const renderTask = page.render(renderContext);
-            await renderTask.promise;
+            await page.render(renderContext);
             console.log('Page rendered successfully');
 
             this.currentPageSpan.textContent = this.currentPage;
