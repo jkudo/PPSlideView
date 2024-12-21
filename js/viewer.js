@@ -43,11 +43,17 @@ class PDFViewer {
             const absoluteUrl = new URL(url, window.location.href).href;
             console.log('Absolute URL:', absoluteUrl);
 
+            // 日本語フォントサポートのための設定を追加
             const loadingTask = pdfjsLib.getDocument({
                 url: absoluteUrl,
                 cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
                 cMapPacked: true,
                 standardFontDataUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/standard_fonts/',
+                // 日本語フォント関連の設定
+                fontExtraProperties: true,
+                useSystemFonts: true,
+                disableFontFace: false,
+                verbosity: 1
             });
 
             this.pdfDoc = await loadingTask.promise;
@@ -101,7 +107,10 @@ class PDFViewer {
                 viewport: scaledViewport,
                 enableWebGL: true,
                 renderInteractiveForms: true,
-                useSystemFonts: true
+                // 日本語フォントレンダリングの設定
+                useSystemFonts: true,
+                fontExtraProperties: true,
+                enableFontFaces: true
             };
 
             const renderTask = page.render(renderContext);
