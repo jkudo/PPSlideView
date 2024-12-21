@@ -21,7 +21,6 @@ class PDFViewer {
         this.prevButton.addEventListener('click', () => this.prevPage());
         this.nextButton.addEventListener('click', () => this.nextPage());
 
-        // キーボードショートカットの追加
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 this.prevPage();
@@ -29,10 +28,18 @@ class PDFViewer {
                 this.nextPage();
             }
         });
+
+        // ウィンドウサイズ変更時の再レンダリング
+        window.addEventListener('resize', () => {
+            if (this.pdfDoc) {
+                this.renderCurrentPage();
+            }
+        });
     }
 
     async loadDocument(url) {
         try {
+            console.log('Loading PDF:', url);
             const loadingTask = pdfjsLib.getDocument(url);
             this.pdfDoc = await loadingTask.promise;
             this.totalPagesSpan.textContent = this.pdfDoc.numPages;
@@ -40,7 +47,20 @@ class PDFViewer {
             this.renderCurrentPage();
         } catch (error) {
             console.error('Error loading PDF:', error);
+            this.showError(`スライド ${url} が見つかりません`);
         }
+    }
+
+    showError(message) {
+        const container = document.getElementById('viewerContainer');
+        container.innerHTML = `
+            <div class="alert alert-danger m-3">
+                <h4 class="alert-heading mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    エラーが発生しました
+                </h4>
+                <p class="mb-0">${message}</p>
+            </div>`;
     }
 
     async renderCurrentPage() {
@@ -72,6 +92,7 @@ class PDFViewer {
             this.updateNavigationButtons();
         } catch (error) {
             console.error('Error rendering page:', error);
+            this.showError('ページの表示中にエラーが発生しました');
         }
     }
 
@@ -95,14 +116,8 @@ class PDFViewer {
     }
 }
 
+// Initialize viewer
 const viewer = new PDFViewer();
-
-// ウィンドウサイズが変更されたときにページを再レンダリング
-window.addEventListener('resize', () => {
-    if (viewer.pdfDoc) {
-        viewer.renderCurrentPage();
-    }
-});
 
 // Export for use in other modules
 window.pdfViewer = viewer;
