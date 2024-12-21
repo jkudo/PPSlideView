@@ -7,28 +7,29 @@ class SlidesList {
 
     async loadSlidesList() {
         try {
-            // slidesディレクトリ内のファイル一覧を取得
-            const response = await fetch('slides/');
-            if (!response.ok) {
-                throw new Error('Failed to fetch slides directory');
-            }
+            // スライドの一覧を定義
+            const slides = [
+                {
+                    name: 'demo1',
+                    pdfUrl: 'slides/demo1.pdf'
+                }
+            ];
 
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // PDFファイルのみをフィルタリング
-            this.slides = Array.from(doc.querySelectorAll('a'))
-                .filter(a => a.href.toLowerCase().endsWith('.pdf'))
-                .map(a => {
-                    const filename = decodeURIComponent(a.href.split('/').pop());
-                    return {
-                        name: filename,
-                        download_url: `slides/${filename}`
-                    };
-                });
-
+            // スライド一覧を更新
+            this.slides = slides;
             this.renderList();
+
+            // 各スライドの存在確認
+            for (const slide of this.slides) {
+                try {
+                    const response = await fetch(slide.pdfUrl, { method: 'HEAD' });
+                    if (!response.ok) {
+                        console.warn(`Slide ${slide.name} not found at ${slide.pdfUrl}`);
+                    }
+                } catch (error) {
+                    console.error(`Error checking slide ${slide.name}:`, error);
+                }
+            }
         } catch (error) {
             console.error('Error loading slides list:', error);
             this.listContainer.innerHTML = '<div class="alert alert-danger">スライド一覧の読み込みに失敗しました</div>';
@@ -45,7 +46,7 @@ class SlidesList {
         this.slides.forEach(slide => {
             const item = document.createElement('button');
             item.className = 'list-group-item list-group-item-action';
-            item.textContent = slide.name.replace('.pdf', '');
+            item.textContent = slide.name;
 
             item.addEventListener('click', () => {
                 this.selectSlide(slide);
@@ -62,7 +63,7 @@ class SlidesList {
 
     selectSlide(slide) {
         // 選択されたPDFをビューワーに読み込む
-        window.pdfViewer.loadDocument(slide.download_url);
+        window.pdfViewer.loadDocument(slide.pdfUrl);
     }
 }
 
