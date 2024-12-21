@@ -29,10 +29,6 @@ args = "python server.py"
 task = "workflow.run"
 args = "Flask Server"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Static Server"
-
 [[workflows.workflow]]
 name = "Flask Server"
 author = "agent"
@@ -46,21 +42,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python server.py"
-waitForPort = 3000
-
-[[workflows.workflow]]
-name = "Static Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -m http.server 3000"
 waitForPort = 3000
 
 [[ports]]
