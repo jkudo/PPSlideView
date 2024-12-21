@@ -45,6 +45,7 @@ html, body {
     color: var(--bs-light);
     border-color: var(--bs-border-color);
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .list-group-item:hover {
@@ -53,4 +54,26 @@ html, body {
 
 .list-group-item.active {
     background-color: var(--bs-primary);
+}
+
+.alert {
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+}
+
+/* スマートフォン向けのレスポンシブ対応 */
+@media (max-width: 768px) {
+    .sidebar {
+        height: auto;
+        max-height: 30vh;
+    }
+
+    .viewer-container {
+        height: 70vh;
+    }
+
+    .navigation-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
 }

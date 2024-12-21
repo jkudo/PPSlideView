@@ -108,13 +108,16 @@ class SlidesList {
     showNoSlidesMessage() {
         this.listContainer.innerHTML = `
             <div class="alert alert-info">
-                <h4 class="alert-heading">スライドがありません</h4>
-                <p>現在表示可能なスライドはありません。</p>
+                <h4 class="alert-heading mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    スライドがありません
+                </h4>
+                <p class="mb-3">現在表示可能なスライドはありません。</p>
                 <hr>
-                <p class="mb-0">スライドを追加するには：</p>
+                <p class="mb-2">スライドを追加するには：</p>
                 <ol class="mt-2">
-                    <li><code>slides</code>ディレクトリにPowerPointファイル（.pptx）をアップロードしてください。</li>
-                    <li>自動的にPDFに変換され、ここに表示されます。</li>
+                    <li class="mb-2"><code>slides</code>ディレクトリにPowerPointファイル（.pptx）をアップロードしてください。</li>
+                    <li>GitHub Actionsにより自動的にPDFに変換され、ここに表示されます。</li>
                 </ol>
             </div>`;
     }
@@ -122,8 +125,11 @@ class SlidesList {
     showErrorMessage() {
         this.listContainer.innerHTML = `
             <div class="alert alert-danger">
-                <h4 class="alert-heading">エラーが発生しました</h4>
-                <p>スライド一覧の読み込みに失敗しました。</p>
+                <h4 class="alert-heading mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    エラーが発生しました
+                </h4>
+                <p class="mb-2">スライド一覧の読み込みに失敗しました。</p>
                 <p>ページを更新してもう一度お試しください。</p>
             </div>`;
     }
